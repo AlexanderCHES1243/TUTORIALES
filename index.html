@@ -7,7 +7,7 @@
 
 <style>
   .carousel-container{
-    width:100%;max-width:180px;height:325px;
+    width:100%;max-width:325px;height:180px;
     position:relative;margin:auto;overflow:hidden;border-radius:10px;
   }
 
@@ -78,91 +78,6 @@ slides.forEach(slide=>{
   slide.addEventListener('mouseenter', ()=> vid.setAttribute('controls',''));
   slide.addEventListener('mouseleave', ()=> vid.removeAttribute('controls'));
 });
-</script>
-
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Carrusel de Videos sin Autoplay – Ajuste “contain”</title>
-
-  <style>
-    .carousel-container{
-      width:100%;
-      max-width:315px;
-      height:180px;
-      position:relative;
-      overflow:hidden;
-      margin:auto;
-      border-radius:10px;
-    }
-
-    .carousel-container a{
-      position:absolute;top:0;left:0;width:100%;height:100%;
-      opacity:0;transition:opacity 1s ease-in-out;z-index:0;
-    }
-    .carousel-container a.active{opacity:1;z-index:1;}
-
-    /* AJUSTE: mostrar el clip completo sin recortes */
-    .carousel-video{
-      width:100%;height:100%;
-      object-fit:contain;     /* <─ cambio clave */
-      background:#000;        /* bandas negras si sobra espacio */
-      border-radius:10px;
-      display:block;
-    }
-
-    .nav-btn{
-      position:absolute;top:50%;transform:translateY(-50%);
-      background:rgba(51,51,51,.4);border:none;color:#fff;font-size:22px;
-      border-radius:50%;width:36px;height:36px;display:flex;
-      align-items:center;justify-content:center;cursor:pointer;z-index:2;
-    }
-    .nav-btn:hover{background:rgba(0,0,0,.6);}
-    .prev{left:10px;} .next{right:10px;}
-  </style>
-</head>
-<body>
-
-<div class="carousel-container">
-  <!-- Diapositiva 1 -->
-  <a href="#" class="active">
-    <video class="carousel-video" controls playsinline preload="metadata">
-      <source src="https://ceoacademy.edu.pe/wp-content/uploads/2025/06/VIDEO-1_1.mp4" type="video/mp4">
-    </video>
-  </a>
-
-  <!-- Diapositivas 2-4 (mismo clip de ejemplo) -->
-  <a href="#"><video class="carousel-video" controls playsinline preload="metadata"><source src="https://ceoacademy.edu.pe/wp-content/uploads/2025/06/VIDEO-1_1.mp4" type="video/mp4"></video></a>
-  <a href="#"><video class="carousel-video" controls playsinline preload="metadata"><source src="https://ceoacademy.edu.pe/wp-content/uploads/2025/06/VIDEO-1_1.mp4" type="video/mp4"></video></a>
-  <a href="#"><video class="carousel-video" controls playsinline preload="metadata"><source src="https://ceoacademy.edu.pe/wp-content/uploads/2025/06/VIDEO-1_1.mp4" type="video/mp4"></video></a>
-
-  <button class="nav-btn prev" onclick="moveSlide(-1)">‹</button>
-  <button class="nav-btn next" onclick="moveSlide(1)">›</button>
-</div>
-
-<script>
-  const slides = document.querySelectorAll('.carousel-container a');
-  let current = 0;
-
-  function showSlide(index){
-    slides.forEach((slide,i)=>{
-      const active = i===index;
-      slide.classList.toggle('active',active);
-      const vid = slide.querySelector('video');
-      if(vid && !active){ vid.pause(); vid.currentTime = 0; }
-    });
-  }
-
-  function moveSlide(step){
-    current = (current+step+slides.length)%slides.length;
-    showSlide(current);
-  }
-
-  showSlide(0);  // primera diapositiva visible
 </script>
 
 </body>
