@@ -3,20 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Carrusel de videos – Controles solo en hover (fix)</title>
+<title>Carrusel de videos – Detiene auto-slide al reproducir</title>
 
 <style>
   .carousel-container{width:100%;max-width:325px;height:180px;position:relative;margin:auto;overflow:hidden;border-radius:10px;}
   .carousel-container a{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;transition:opacity 1s ease-in-out;z-index:0;}
   .carousel-container a.active{opacity:1;z-index:1;}
-
   .carousel-video{width:100%;height:100%;object-fit:contain;background:#000;border-radius:10px;}
-
-  .nav-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(51,51,51,.4);
-           border:none;color:#fff;font-size:22px;border-radius:50%;width:36px;height:36px;
-           display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;}
-  .nav-btn:hover{background:rgba(0,0,0,.6);}  .prev{left:10px;}  .next{right:10px;}
-
+  .nav-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(51,51,51,.4);border:none;color:#fff;font-size:22px;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;}
+  .nav-btn:hover{background:rgba(0,0,0,.6);} .prev{left:10px;} .next{right:10px;}
   .indicators{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:3;}
   .dot{width:9px;height:9px;border-radius:50%;background:#fff;opacity:.4;cursor:pointer;transition:opacity .3s;}
   .dot.active{opacity:1;}
@@ -42,45 +37,62 @@
 </div>
 
 <script>
-  const slides = document.querySelectorAll('.carousel-container a');
-  const dots   = document.querySelectorAll('.dot');
-  const box    = document.getElementById('carousel');
+const slides = document.querySelectorAll('.carousel-container a');
+const dots   = document.querySelectorAll('.dot');
+const box    = document.getElementById('carousel');
 
-  let current  = 0;
-  let inside   = false;                 // ➊ indicador de si el mouse ya está dentro
+let current  = 0;
+let inside   = false;
+let interval = null;
 
-  function setControls(show){
-    const vid = slides[current].querySelector('video');
-    show ? vid.setAttribute('controls','') : vid.removeAttribute('controls');
-  }
+function setControls(show){
+  const vid = slides[current].querySelector('video');
+  show ? vid.setAttribute('controls','') : vid.removeAttribute('controls');
+}
 
-  function showSlide(i){
-    slides.forEach((s,idx)=>{
-      const active = idx===i;
-      s.classList.toggle('active',active);
-      dots[idx].classList.toggle('active',active);
-      const vid = s.querySelector('video');
-      vid.pause(); vid.currentTime = 0;      // reinicia todos
-      if(!active){ vid.removeAttribute('controls'); }  // quita controles al salir
-    });
-    current = i;
-    if(inside) setControls(true);      // ➋ si el mouse ya estaba dentro, muestra controles del nuevo slide
-  }
-
-  function moveSlide(step){ showSlide((current+step+slides.length)%slides.length); }
-  function goToSlide(i){ showSlide(i); }
-
-  /* ——— eventos hover para controlar 'inside' ——— */
-  box.addEventListener('mouseenter', ()=>{
-    inside = true;
-    setControls(true);
+function showSlide(i){
+  slides.forEach((s,idx)=>{
+    const active = idx===i;
+    s.classList.toggle('active',active);
+    dots[idx].classList.toggle('active',active);
+    const vid = s.querySelector('video');
+    vid.pause(); vid.currentTime = 0;
+    if(!active){ vid.removeAttribute('controls'); }
   });
-  box.addEventListener('mouseleave', ()=>{
-    inside = false;
-    setControls(false);
-  });
+  current = i;
+  if (inside) setControls(true);
+  attachPlaybackEvents();  // ← importante: cada vez que cambiamos de slide
+}
 
-  showSlide(0);   // inicia
+function moveSlide(step){ showSlide((current+step+slides.length)%slides.length); }
+function goToSlide(i){ showSlide(i); }
+
+function startAutoSlide(){
+  if (!interval) interval = setInterval(()=> moveSlide(1), 4000);
+}
+
+function stopAutoSlide(){
+  clearInterval(interval);
+  interval = null;
+}
+
+/* Hover para controles */
+box.addEventListener('mouseenter', ()=>{ inside=true;  setControls(true);  });
+box.addEventListener('mouseleave', ()=>{ inside=false; setControls(false); });
+
+/* Pausar auto-slide al reproducir un video */
+function attachPlaybackEvents(){
+  slides.forEach((s,idx)=>{
+    const vid = s.querySelector('video');
+    vid.onplay = ()=> stopAutoSlide();
+    vid.onpause = ()=> startAutoSlide();
+    vid.onended = ()=> startAutoSlide();
+  });
+}
+
+attachPlaybackEvents();  // al cargar
+showSlide(0);            // iniciar en el primero
+startAutoSlide();        // activar rotación automática
 </script>
 
 </body>
